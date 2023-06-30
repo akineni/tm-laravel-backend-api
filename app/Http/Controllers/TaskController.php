@@ -19,16 +19,19 @@ class TaskController extends Controller
         return Task::create($task);
     }
 
-    // public function update(int $task_id) {
-    //     return Task::destroy($task_id);
-    // }
+    public function update(Request $request, int $task_id) {
+        return Task::where('id', $task_id)->update(
+            $request->all()
+        );
+    }
 
-    public function completed(int $task_id) {
-        //return Task::where('id', $task_id)->;
+    public function completed(Request $request, int $task_id) {        
+        return Task::where('id', $task_id)->update(
+            array('completed' => $request->input('completed'))
+        );
     }
 
     public function delete(int $task_id) {
         return Task::destroy($task_id);
-    }
-    
+    }    
 }
