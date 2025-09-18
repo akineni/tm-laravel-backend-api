@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Google_Client;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\PersonalAccessToken;
+use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -45,6 +48,15 @@ class UserController extends Controller
         JWT::$leeway = 120;
         
         $client = new Google_Client(['client_id' => env('GOOGLE_PROVIDER_ID')]);
+
+        // Only disable SSL verification locally
+        if (App::environment(['local', 'development'])) {
+            Log::info('Disabling SSL verification in local environment');
+
+            $guzzleClient = new GuzzleClient(['verify' => false]);
+            $client->setHttpClient($guzzleClient);
+        }
+
         $payload = $client->verifyIdToken($id_token);
         
         return $payload ? $payload : response('Invalid Id token', 401);        
